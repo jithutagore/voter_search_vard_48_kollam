@@ -5,10 +5,10 @@ const searchInput = document.getElementById('search');
 const searchBtn = document.getElementById('searchBtn');
 const resultsEl = document.getElementById('results');
 const loadingEl = document.getElementById('loading');
+const errorEl = document.getElementById('error');
 
 // Global state
 let allVoters = [];
-let useModel;
 
 // Loading state handlers
 function showLoading(message = 'Loading data, please wait...') {
@@ -21,34 +21,20 @@ function hideLoading() {
   loadingEl.classList.remove('active');
 }
 
-// Cosine similarity between two vectors
-function cosine(a, b) {
-  let dot = 0, na = 0, nb = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    na += a[i] * a[i];
-    nb += b[i] * b[i];
-  }
-  return dot / Math.sqrt(na * nb);
+function showError(message) {
+  errorEl.textContent = message;
+  errorEl.style.display = 'block';
 }
 
-// Load the Universal Sentence Encoder
-async function loadEmbedder() {
-  try {
-    console.log('Loading Universal Sentence Encoder...');
-    showLoading('Loading AI model...');
-    useModel = await use.load();
-    console.log('Encoder loaded successfully');
-  } catch (err) {
-    console.error('Failed to load encoder:', err);
-    throw err;
-  }
+function hideError() {
+  errorEl.style.display = 'none';
 }
 
 // Load data for six wards
 async function loadData() {
   try {
     showLoading('Loading voter data...');
+    hideError();
     allVoters = [];
     const lang = langSel.value;
     const wardNames = new Set();
@@ -57,7 +43,7 @@ async function loadData() {
 
     for (let w = 1; w <= 6; w++) {
       try {
-        const resp = await fetch(`data/${w}_${lang}_embedded.json`);
+        const resp = await fetch(`data/${w}_${lang}.json`); // Remove _embedded suffix
         if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
         
         const { ward, polling_station, voters } = await resp.json();
@@ -69,6 +55,7 @@ async function loadData() {
         });
       } catch (err) {
         console.error(`Failed to load ward ${w}:`, err);
+        showError(`Failed to load ward ${w}`);
       }
     }
 
@@ -85,7 +72,7 @@ async function loadData() {
     renderAllVoters();
   } catch (err) {
     console.error('Failed to load data:', err);
-    throw err;
+    showError('Failed to load voter data');
   } finally {
     hideLoading();
   }
@@ -93,53 +80,13 @@ async function loadData() {
 
 // Render all voters (no search)
 function renderAllVoters() {
-  const selectedWard = wardSel.value;
-  let pool = selectedWard === 'all'
-    ? allVoters
-    : allVoters.filter(v => v.ward === selectedWard);
-
-  resultsEl.innerHTML = pool.map(v => `
-    <tr>
-      <td data-label="Serial">${v.serial}</td>
-      <td data-label="Ward">${v.ward}</td>
-      <td data-label="Name">${v.name}</td>
-      <td data-label="Guardian">${v.guardian}</td>
-      <td data-label="House No">${v.house_no}</td>
-      <td data-label="House Name">${v.house_name}</td>
-      <td data-label="Gender">${v.gender}</td>
-      <td data-label="Age">${v.age}</td>
-      <td data-label="ID">${v.id}</td>
-      <td data-label="Polling Station">${v.polling_station}</td>
-      <td data-label="Score"></td>
-    </tr>
-  `).join('');
-}
-
-// Search function
-async function doSearch() {
   try {
-    const q = searchInput.value.trim();
-    if (!q || !useModel) {
-      renderAllVoters();
-      return;
-    }
-
-    showLoading('Searching voters...');
     const selectedWard = wardSel.value;
     let pool = selectedWard === 'all'
       ? allVoters
       : allVoters.filter(v => v.ward === selectedWard);
 
-    const embedOut = await useModel.embed([q]);
-    const arr = await embedOut.array();
-    const qEmb = arr[0];
-
-    const results = pool
-      .map(v => ({ v, score: cosine(qEmb, v.embedding) }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 20);
-
-    resultsEl.innerHTML = results.map(({ v, score }) => `
+    resultsEl.innerHTML = pool.map(v => `
       <tr>
         <td data-label="Serial">${v.serial}</td>
         <td data-label="Ward">${v.ward}</td>
@@ -151,11 +98,58 @@ async function doSearch() {
         <td data-label="Age">${v.age}</td>
         <td data-label="ID">${v.id}</td>
         <td data-label="Polling Station">${v.polling_station}</td>
-        <td data-label="Score">${(score * 100).toFixed(1)}%</td>
+        <td data-label="Score"></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to render voters:', err);
+    showError('Failed to display voters');
+  }
+}
+
+// Search function
+async function doSearch() {
+  try {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      renderAllVoters();
+      return;
+    }
+
+    showLoading('Searching voters...');
+    hideError();
+    
+    const selectedWard = wardSel.value;
+    let pool = selectedWard === 'all'
+      ? allVoters
+      : allVoters.filter(v => v.ward === selectedWard);
+
+    const results = pool
+      .filter(v => {
+        const searchText = `${v.name} ${v.guardian} ${v.house_name} ${v.house_no}`
+          .toLowerCase();
+        return searchText.includes(q);
+      })
+      .slice(0, 20);
+
+    resultsEl.innerHTML = results.map(v => `
+      <tr>
+        <td data-label="Serial">${v.serial}</td>
+        <td data-label="Ward">${v.ward}</td>
+        <td data-label="Name">${v.name}</td>
+        <td data-label="Guardian">${v.guardian}</td>
+        <td data-label="House No">${v.house_no}</td>
+        <td data-label="House Name">${v.house_name}</td>
+        <td data-label="Gender">${v.gender}</td>
+        <td data-label="Age">${v.age}</td>
+        <td data-label="ID">${v.id}</td>
+        <td data-label="Polling Station">${v.polling_station}</td>
+        <td data-label="Score"></td>
       </tr>
     `).join('');
   } catch (err) {
     console.error('Search failed:', err);
+    showError('Search failed');
   } finally {
     hideLoading();
   }
@@ -164,12 +158,12 @@ async function doSearch() {
 // Initialize on load
 window.addEventListener('load', async () => {
   try {
-    showLoading('Initializing application...');
-    await loadEmbedder();
+    showLoading('Loading voter data...');
     await loadData();
     console.log('Initialization complete');
   } catch (err) {
     console.error('Failed to initialize:', err);
+    showError('Failed to initialize application');
   } finally {
     hideLoading();
   }
