@@ -37,36 +37,39 @@ async function loadData() {
     hideError();
     allVoters = [];
     const lang = langSel.value;
-    const wardNames = new Set();
+    
+    // Populate ward dropdown with numbers 1-6
+    wardSel.innerHTML = '<option value="all">All Wards</option>';
+    for (let w = 1; w <= 6; w++) {
+      const opt = document.createElement('option');
+      opt.value = w.toString();
+      opt.textContent = `Ward ${w}`;
+      wardSel.appendChild(opt);
+    }
     
     console.log('Loading data for language:', lang);
 
     for (let w = 1; w <= 6; w++) {
       try {
-        const resp = await fetch(`data/${w}_${lang}.json`); // Remove _embedded suffix
+        const resp = await fetch(`data/${w}_${lang}.json`);
         if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
         
-        const { ward, polling_station, voters } = await resp.json();
+        const { polling_station, voters } = await resp.json();
         console.log(`Loaded ward ${w}: ${voters.length} voters`);
         
+        // Add ward number instead of ward name
         voters.forEach(v => {
-          allVoters.push({ ward, polling_station, ...v });
-          wardNames.add(ward);
+          allVoters.push({ 
+            ...v,
+            ward: w, // Use ward number
+            polling_station
+          });
         });
       } catch (err) {
         console.error(`Failed to load ward ${w}:`, err);
         showError(`Failed to load ward ${w}`);
       }
     }
-
-    // Populate ward dropdown
-    wardSel.innerHTML = '<option value="all">All Wards</option>';
-    Array.from(wardNames).sort().forEach(w => {
-      const opt = document.createElement('option');
-      opt.value = w;
-      opt.textContent = w;
-      wardSel.appendChild(opt);
-    });
 
     console.log('Total voters loaded:', allVoters.length);
     renderAllVoters();
@@ -84,7 +87,7 @@ function renderAllVoters() {
     const selectedWard = wardSel.value;
     let pool = selectedWard === 'all'
       ? allVoters
-      : allVoters.filter(v => v.ward === selectedWard);
+      : allVoters.filter(v => v.ward === parseInt(selectedWard));
 
     resultsEl.innerHTML = pool.map(v => `
       <tr>
@@ -122,7 +125,7 @@ async function doSearch() {
     const selectedWard = wardSel.value;
     let pool = selectedWard === 'all'
       ? allVoters
-      : allVoters.filter(v => v.ward === selectedWard);
+      : allVoters.filter(v => v.ward === parseInt(selectedWard));
 
     const results = pool
       .filter(v => {
