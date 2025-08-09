@@ -8,7 +8,7 @@ const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
 
 // Configuration
-const WARDS = ['048', '049']; // Add more ward numbers as needed
+const WARDS = ['048']; // Add more ward numbers as needed
 
 // Global state
 let allVoters = [];
