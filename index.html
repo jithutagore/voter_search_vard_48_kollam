@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Voter Search (Fully Offline & Free)</title>
+  <title>Voter Search</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Voter Search</h1>
 
-  <!-- Add loading indicator -->
-<div id="loading" class="loading">
-  <div class="spinner"></div>
-  <div class="loading-text">Loading data, please wait...</div>
-</div>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading data, please wait...</div>
+  </div>
 
   <div class="controls">
     <select id="language">
@@ -35,6 +34,7 @@
         <tr>
           <th>Serial</th>
           <th>Ward</th>
+          <th>PS No</th>
           <th>Name</th>
           <th>Guardian</th>
           <th>House No</th>
@@ -43,19 +43,14 @@
           <th>Age</th>
           <th>ID</th>
           <th>Polling Station</th>
-          <th>Score</th>
         </tr>
       </thead>
       <tbody id="results"></tbody>
     </table>
   </div>
 
-  <!-- Add error message container -->
   <div id="error" class="error"></div>
 
-  <!-- TensorFlow.js & Universal Sentence Encoder -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder@1.3.3/dist/universal-sentence-encoder.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

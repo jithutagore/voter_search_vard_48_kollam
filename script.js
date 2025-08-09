@@ -7,6 +7,9 @@ const resultsEl = document.getElementById('results');
 const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
 
+// Configuration
+const WARDS = ['048', '049']; // Add more ward numbers as needed
+
 // Global state
 let allVoters = [];
 
@@ -30,7 +33,7 @@ function hideError() {
   errorEl.style.display = 'none';
 }
 
-// Load data for six wards
+// Load data for all wards
 async function loadData() {
   try {
     showLoading('Loading voter data...');
@@ -38,36 +41,38 @@ async function loadData() {
     allVoters = [];
     const lang = langSel.value;
     
-    // Populate ward dropdown with numbers 1-6
+    // Populate ward dropdown
     wardSel.innerHTML = '<option value="all">All Wards</option>';
-    for (let w = 1; w <= 6; w++) {
+    WARDS.forEach(ward => {
       const opt = document.createElement('option');
-      opt.value = w.toString();
-      opt.textContent = `Ward ${w}`;
+      opt.value = ward;
+      opt.textContent = `Ward ${ward}`;
       wardSel.appendChild(opt);
-    }
+    });
     
     console.log('Loading data for language:', lang);
 
-    for (let w = 1; w <= 6; w++) {
-      try {
-        const resp = await fetch(`data/${w}_${lang}.json`);
-        if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-        
-        const { polling_station, voters } = await resp.json();
-        console.log(`Loaded ward ${w}: ${voters.length} voters`);
-        
-        // Add ward number instead of ward name
-        voters.forEach(v => {
-          allVoters.push({ 
-            ...v,
-            ward: w, // Use ward number
-            polling_station
+    // Load data from each ward folder
+    for (const ward of WARDS) {
+      for (let ps = 1; ps <= 6; ps++) { // Polling stations 1-6
+        try {
+          const resp = await fetch(`data/${ward}/${ps}_${lang}.json`);
+          if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+          
+          const { polling_station, voters } = await resp.json();
+          console.log(`Loaded ward ${ward} PS ${ps}: ${voters.length} voters`);
+          
+          voters.forEach(v => {
+            allVoters.push({ 
+              ...v,
+              ward,
+              polling_station_no: ps,
+              polling_station
+            });
           });
-        });
-      } catch (err) {
-        console.error(`Failed to load ward ${w}:`, err);
-        showError(`Failed to load ward ${w}`);
+        } catch (err) {
+          console.error(`Failed to load ward ${ward} PS ${ps}:`, err);
+        }
       }
     }
 
@@ -87,12 +92,13 @@ function renderAllVoters() {
     const selectedWard = wardSel.value;
     let pool = selectedWard === 'all'
       ? allVoters
-      : allVoters.filter(v => v.ward === parseInt(selectedWard));
+      : allVoters.filter(v => v.ward === selectedWard);
 
     resultsEl.innerHTML = pool.map(v => `
       <tr>
         <td data-label="Serial">${v.serial}</td>
         <td data-label="Ward">${v.ward}</td>
+        <td data-label="PS No">${v.polling_station_no}</td>
         <td data-label="Name">${v.name}</td>
         <td data-label="Guardian">${v.guardian}</td>
         <td data-label="House No">${v.house_no}</td>
@@ -101,7 +107,6 @@ function renderAllVoters() {
         <td data-label="Age">${v.age}</td>
         <td data-label="ID">${v.id}</td>
         <td data-label="Polling Station">${v.polling_station}</td>
-        <td data-label="Score"></td>
       </tr>
     `).join('');
   } catch (err) {
@@ -125,7 +130,7 @@ async function doSearch() {
     const selectedWard = wardSel.value;
     let pool = selectedWard === 'all'
       ? allVoters
-      : allVoters.filter(v => v.ward === parseInt(selectedWard));
+      : allVoters.filter(v => v.ward === selectedWard);
 
     const results = pool
       .filter(v => {
@@ -139,6 +144,7 @@ async function doSearch() {
       <tr>
         <td data-label="Serial">${v.serial}</td>
         <td data-label="Ward">${v.ward}</td>
+        <td data-label="PS No">${v.polling_station_no}</td>
         <td data-label="Name">${v.name}</td>
         <td data-label="Guardian">${v.guardian}</td>
         <td data-label="House No">${v.house_no}</td>
@@ -147,7 +153,6 @@ async function doSearch() {
         <td data-label="Age">${v.age}</td>
         <td data-label="ID">${v.id}</td>
         <td data-label="Polling Station">${v.polling_station}</td>
-        <td data-label="Score"></td>
       </tr>
     `).join('');
   } catch (err) {
