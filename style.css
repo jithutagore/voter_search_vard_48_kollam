@@ -1,11 +1,9 @@
-/* Base reset */
+/* Reset */
 * {
   box-sizing: border-box;
 }
-
 body {
   font-family: Arial, sans-serif;
-  padding: 0;
   margin: 0;
   background: #f4f6f8;
   color: #333;
@@ -24,20 +22,17 @@ body {
   font-size: 1.6em;
 }
 
-/* Container */
+/* Container & Card */
 .container {
   padding: 15px;
   max-width: 1000px;
   margin: auto;
 }
-
-/* Card style */
 .card {
-  background: #fff;
+  background: white;
   border-radius: 8px;
+  padding: 15px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  padding: 10px;
-  margin-bottom: 15px;
 }
 
 /* Controls */
@@ -45,7 +40,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  align-items: center;
 }
 select, input, button {
   padding: 8px;
@@ -55,7 +49,7 @@ select, input, button {
 }
 button {
   background: #1976d2;
-  color: #fff;
+  color: white;
   border: none;
   cursor: pointer;
   transition: background 0.2s;
@@ -77,11 +71,11 @@ button:hover {
   color: #d32f2f;
   text-align: center;
   padding: 10px;
-  margin: 10px 0;
+  margin-top: 10px;
   display: none;
 }
 
-/* Table - Desktop view */
+/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -99,17 +93,15 @@ thead {
   overflow-x: auto;
 }
 
-/* Mobile view - Card layout for rows */
+/* Mobile Table */
 @media (max-width: 700px) {
   table, thead, tbody, th, td, tr {
     display: block;
     width: 100%;
   }
-  thead {
-    display: none;
-  }
+  thead { display: none; }
   tr {
-    background: #fff;
+    background: white;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     margin-bottom: 12px;
@@ -118,9 +110,8 @@ thead {
   td {
     border: none;
     padding: 6px 8px;
-    position: relative;
     padding-left: 40%;
-    min-height: 32px;
+    position: relative;
     border-bottom: 1px solid #f0f0f0;
   }
   td:before {
@@ -133,17 +124,9 @@ thead {
     color: #555;
     content: attr(data-label);
   }
-  td[data-label="Name"] {
-    font-weight: bold;
-    font-size: 1.05em;
-    color: #1976d2;
-  }
-  tr:last-child td {
-    border-bottom: none;
-  }
 }
 
-/* Loading overlay */
+/* Loading Overlay */
 .loading {
   position: fixed;
   top: 0;
@@ -154,27 +137,35 @@ thead {
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  flex-direction: column;
+  z-index: 999;
 }
 .loading.active {
   display: flex;
 }
+.spinner-container {
+  text-align: center;
+}
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
+  width: 60px;
+  height: 60px;
+  border: 5px solid #ddd;
   border-top: 5px solid #1976d2;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  margin: auto;
 }
 .loading-text {
   margin-top: 15px;
-  text-align: center;
   color: #555;
   font-size: 1.05em;
+  animation: fadePulse 1.5s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes fadePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }

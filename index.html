@@ -1,47 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Voter Search</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-
   <!-- Header -->
   <header class="header">
     <h1>Voter Search</h1>
   </header>
 
-  <!-- Loading overlay -->
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    <div class="loading-text">Loading data, please wait...</div>
-  </div>
-
-  <!-- Main container -->
-  <div class="container">
-
-    <!-- Controls -->
-    <div class="controls card">
+  <!-- Controls -->
+  <div class="container card">
+    <div class="controls">
       <select id="language">
         <option value="en">English</option>
         <option value="ml">Malayalam</option>
       </select>
-      <select id="ward">
-        <option value="all">All Wards</option>
-      </select>
+
+      <select id="ward"></select>
+
       <div class="search-box">
-        <input id="search" placeholder="Type name, guardian, house or ID…" />
+        <input type="text" id="search" placeholder="Search by name, house, or PS..."/>
         <button id="searchBtn">Search</button>
       </div>
     </div>
 
-    <!-- Error message -->
     <div id="error" class="error"></div>
 
     <!-- Results -->
-    <div class="results-container card">
+    <div class="results-container">
       <table>
         <thead>
           <tr>
@@ -61,7 +51,14 @@
         <tbody id="results"></tbody>
       </table>
     </div>
+  </div>
 
+  <!-- Loading Screen -->
+  <div id="loading" class="loading">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading voter data...</p>
+    </div>
   </div>
 
   <script src="script.js"></script>

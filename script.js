@@ -1,4 +1,3 @@
-// DOM Elements
 const langSel = document.getElementById('language');
 const wardSel = document.getElementById('ward');
 const searchInput = document.getElementById('search');
@@ -7,194 +6,142 @@ const resultsEl = document.getElementById('results');
 const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
 
-// Configuration
-const WARDS = ['048']; // Add more ward numbers if needed
-const LANGUAGES = ['en', 'ml']; // English, Malayalam
+// --- CONFIG ---
+const WARDS = ['048']; // Add more wards if needed
+const LANGUAGES = ['english', 'malayalam'];
+const POLLING_STATIONS_PER_WARD = 6; // change if needed
 
-// Global state
 let votersEn = [];
 let votersMl = [];
 
-// Loading state handlers
-function showLoading(message = 'Loading data, please wait...') {
-  const textEl = loadingEl.querySelector('.loading-text');
-  textEl.textContent = message;
+// --- UI HELPERS ---
+function showLoading(message = 'Loading...') {
+  loadingEl.querySelector('.loading-text').textContent = message;
   loadingEl.classList.add('active');
 }
 function hideLoading() {
   loadingEl.classList.remove('active');
 }
-function showError(message) {
-  errorEl.textContent = message;
+function showError(msg) {
+  errorEl.textContent = msg;
   errorEl.style.display = 'block';
 }
 function hideError() {
   errorEl.style.display = 'none';
 }
 
-// Load data for all wards & all languages
+// --- LOAD ALL VOTERS ---
 async function loadData() {
   try {
     showLoading('Loading voter data...');
     hideError();
-
-    // Reset
     votersEn = [];
     votersMl = [];
 
-    // Populate ward dropdown
+    // Populate wards in dropdown
     wardSel.innerHTML = '<option value="all">All Wards</option>';
-    WARDS.forEach(ward => {
+    WARDS.forEach(w => {
       const opt = document.createElement('option');
-      opt.value = ward;
-      opt.textContent = `Ward ${ward}`;
+      opt.value = w;
+      opt.textContent = `Ward ${w}`;
       wardSel.appendChild(opt);
     });
 
-    // Load both language datasets
+    // Fetch each ward / polling station / language file
     for (const lang of LANGUAGES) {
       for (const ward of WARDS) {
-        for (let ps = 1; ps <= 6; ps++) {
+        for (let ps = 1; ps <= POLLING_STATIONS_PER_WARD; ps++) {
           try {
             const resp = await fetch(`data/${ward}/${ps}_${lang}.json`);
-            if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-
+            if (!resp.ok) continue;
             const { polling_station, voters } = await resp.json();
-
             const enriched = voters.map(v => ({
               ...v,
               ward,
               polling_station_no: ps,
               polling_station
             }));
-
-            if (lang === 'en') {
-              votersEn.push(...enriched);
-            } else if (lang === 'ml') {
-              votersMl.push(...enriched);
-            }
-
+            if (lang === 'english') votersEn.push(...enriched);
+            else votersMl.push(...enriched);
           } catch (err) {
-            console.warn(`Failed to load ward ${ward} PS ${ps} (${lang}):`, err);
+            console.warn(`Failed to load ${ward}/${ps}_${lang}.json`);
           }
         }
       }
     }
 
-    console.log('English voters loaded:', votersEn.length);
-    console.log('Malayalam voters loaded:', votersMl.length);
-
     renderAllVoters();
-  } catch (err) {
-    console.error('Failed to load data:', err);
+  } catch {
     showError('Failed to load voter data');
   } finally {
     hideLoading();
   }
 }
 
-// Get active language dataset
+// --- GET CURRENT LANGUAGE POOL ---
 function getActiveVoterPool() {
-  const selectedLang = langSel.value;
-  return selectedLang === 'ml' ? votersMl : votersEn;
+  return langSel.value === 'malayalam' ? votersMl : votersEn;
 }
 
-// Render all voters
+// --- RENDER ALL VOTERS ---
 function renderAllVoters() {
-  try {
-    const selectedWard = wardSel.value;
-    let pool = getActiveVoterPool();
-
-    if (selectedWard !== 'all') {
-      pool = pool.filter(v => v.ward === selectedWard);
-    }
-
-    resultsEl.innerHTML = pool.map(v => `
-      <tr>
-        <td data-label="Serial">${v.serial}</td>
-        <td data-label="Ward">${v.ward}</td>
-        <td data-label="PS No">${v.polling_station_no}</td>
-        <td data-label="Name">${v.name}</td>
-        <td data-label="Guardian">${v.guardian}</td>
-        <td data-label="House No">${v.house_no}</td>
-        <td data-label="House Name">${v.house_name}</td>
-        <td data-label="Gender">${v.gender}</td>
-        <td data-label="Age">${v.age}</td>
-        <td data-label="ID">${v.id}</td>
-        <td data-label="Polling Station">${v.polling_station}</td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.error('Failed to render voters:', err);
-    showError('Failed to display voters');
-  }
+  const ward = wardSel.value;
+  let pool = getActiveVoterPool();
+  if (ward !== 'all') pool = pool.filter(v => v.ward === ward);
+  resultsEl.innerHTML = pool.map(v => rowHTML(v)).join('');
 }
 
-// Search function
+// --- RENDER ONE ROW ---
+function rowHTML(v) {
+  return `
+    <tr>
+      <td data-label="Serial">${v.serial}</td>
+      <td data-label="Ward">${v.ward}</td>
+      <td data-label="PS No">${v.polling_station_no}</td>
+      <td data-label="Name">${v.name}</td>
+      <td data-label="Guardian">${v.guardian}</td>
+      <td data-label="House No">${v.house_no}</td>
+      <td data-label="House Name">${v.house_name}</td>
+      <td data-label="Gender">${v.gender}</td>
+      <td data-label="Age">${v.age}</td>
+      <td data-label="ID">${v.id}</td>
+      <td data-label="Polling Station">${v.polling_station}</td>
+    </tr>
+  `;
+}
+
+// --- SEARCH FUNCTION ---
 async function doSearch() {
-  try {
-    const q = searchInput.value.trim().toLowerCase();
-    if (!q) {
-      renderAllVoters();
-      return;
-    }
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) return renderAllVoters();
 
-    showLoading('Searching voters...');
-    hideError();
+  showLoading('Searching...');
+  hideError();
 
-    const selectedWard = wardSel.value;
-    let pool = getActiveVoterPool();
+  const ward = wardSel.value;
+  let pool = getActiveVoterPool();
+  if (ward !== 'all') pool = pool.filter(v => v.ward === ward);
 
-    if (selectedWard !== 'all') {
-      pool = pool.filter(v => v.ward === selectedWard);
-    }
+  // Search across all major fields
+  const results = pool.filter(v => {
+    const text = `${v.serial} ${v.name} ${v.guardian} ${v.house_name} ${v.house_no} ${v.polling_station_no} ${v.id}`
+      .toLowerCase();
+    return text.includes(q);
+  }).slice(0, 50); // limit results for performance
 
-    const results = pool
-      .filter(v => {
-        const searchText = `${v.name} ${v.guardian} ${v.house_name} ${v.house_no} ${v.polling_station_no}`
-          .toLowerCase();
-        return searchText.includes(q);
-      })
-      .slice(0, 20);
+  hideLoading();
 
-    resultsEl.innerHTML = results.map(v => `
-      <tr>
-        <td data-label="Serial">${v.serial}</td>
-        <td data-label="Ward">${v.ward}</td>
-        <td data-label="PS No">${v.polling_station_no}</td>
-        <td data-label="Name">${v.name}</td>
-        <td data-label="Guardian">${v.guardian}</td>
-        <td data-label="House No">${v.house_no}</td>
-        <td data-label="House Name">${v.house_name}</td>
-        <td data-label="Gender">${v.gender}</td>
-        <td data-label="Age">${v.age}</td>
-        <td data-label="ID">${v.id}</td>
-        <td data-label="Polling Station">${v.polling_station}</td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.error('Search failed:', err);
-    showError('Search failed');
-  } finally {
-    hideLoading();
+  if (results.length) {
+    resultsEl.innerHTML = results.map(v => rowHTML(v)).join('');
+  } else {
+    resultsEl.innerHTML = '';
+    showError('No results found.');
   }
 }
 
-// Initialize
-window.addEventListener('load', async () => {
-  try {
-    await loadData();
-    console.log('Initialization complete');
-  } catch (err) {
-    console.error('Failed to initialize:', err);
-    showError('Failed to initialize application');
-  }
-});
-
-// Event listeners
+// --- EVENT LISTENERS ---
+window.addEventListener('load', loadData);
 langSel.addEventListener('change', renderAllVoters);
 wardSel.addEventListener('change', renderAllVoters);
 searchBtn.addEventListener('click', doSearch);
-searchInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') doSearch();
-});
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
