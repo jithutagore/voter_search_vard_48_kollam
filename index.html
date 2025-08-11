@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <!-- Loading Screen -->
   <div id="loading">
     <div class="spinner"></div>
@@ -29,30 +28,34 @@
         <option value="all">All Wards</option>
       </select>
 
-      <input type="text" id="search" placeholder="Search voters...">
-      <button id="searchBtn">Search</button>
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search by name, house, ID...">
+        <button id="searchBtn">Search</button>
+      </div>
     </div>
 
     <div id="error" class="error"></div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Serial</th>
-          <th>Ward</th>
-          <th>PS No</th>
-          <th>Name</th>
-          <th>Guardian</th>
-          <th>House No</th>
-          <th>House Name</th>
-          <th>Gender</th>
-          <th>Age</th>
-          <th>ID</th>
-          <th>Polling Station</th>
-        </tr>
-      </thead>
-      <tbody id="results"></tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Serial</th>
+            <th>Ward</th>
+            <th>PS No</th>
+            <th>Name</th>
+            <th>Guardian</th>
+            <th>House No</th>
+            <th>House Name</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>ID</th>
+            <th>Polling Station</th>
+          </tr>
+        </thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
   </main>
 
   <script src="script.js"></script>
