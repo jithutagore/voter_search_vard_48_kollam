@@ -6,15 +6,17 @@ const resultsEl = document.getElementById('results');
 const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
 
-// --- CONFIG ---
-const WARDS = ['048']; // Add more wards if needed
+// Config
+const WARDS = ['048']; // Add more wards here
 const LANGUAGES = ['english', 'malayalam'];
-const POLLING_STATIONS_PER_WARD = 6; // change if needed
+const POLLING_STATIONS_PER_WARD = 6;
+const CACHE_KEY = 'voterCache_v1';
 
+// Data
 let votersEn = [];
 let votersMl = [];
 
-// --- UI HELPERS ---
+// UI helpers
 function showLoading(message = 'Loading...') {
   loadingEl.querySelector('.loading-text').textContent = message;
   loadingEl.classList.add('active');
@@ -30,60 +32,73 @@ function hideError() {
   errorEl.style.display = 'none';
 }
 
-// --- LOAD ALL VOTERS ---
+// Load voters (with caching)
 async function loadData() {
-  try {
-    showLoading('Loading voter data...');
-    hideError();
-    votersEn = [];
-    votersMl = [];
+  showLoading('Loading voter data...');
+  hideError();
 
-    // Populate wards in dropdown
-    wardSel.innerHTML = '<option value="all">All Wards</option>';
-    WARDS.forEach(w => {
-      const opt = document.createElement('option');
-      opt.value = w;
-      opt.textContent = `Ward ${w}`;
-      wardSel.appendChild(opt);
-    });
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    votersEn = parsed.votersEn;
+    votersMl = parsed.votersMl;
+    populateWardDropdown();
+    renderAllVoters();
+    hideLoading();
+    return;
+  }
 
-    // Fetch each ward / polling station / language file
-    for (const lang of LANGUAGES) {
-      for (const ward of WARDS) {
-        for (let ps = 1; ps <= POLLING_STATIONS_PER_WARD; ps++) {
-          try {
-            const resp = await fetch(`data/${ward}/${ps}_${lang}.json`);
-            if (!resp.ok) continue;
-            const { polling_station, voters } = await resp.json();
-            const enriched = voters.map(v => ({
-              ...v,
-              ward,
-              polling_station_no: ps,
-              polling_station
-            }));
-            if (lang === 'english') votersEn.push(...enriched);
-            else votersMl.push(...enriched);
-          } catch (err) {
-            console.warn(`Failed to load ${ward}/${ps}_${lang}.json`);
-          }
+  votersEn = [];
+  votersMl = [];
+
+  populateWardDropdown();
+
+  for (const lang of LANGUAGES) {
+    for (const ward of WARDS) {
+      for (let ps = 1; ps <= POLLING_STATIONS_PER_WARD; ps++) {
+        try {
+          const resp = await fetch(`data/${ward}/${ps}_${lang}.json`);
+          if (!resp.ok) continue;
+          const { polling_station, voters } = await resp.json();
+          const enriched = voters.map(v => ({
+            ...v,
+            ward,
+            polling_station_no: ps,
+            polling_station
+          }));
+          if (lang === 'english') votersEn.push(...enriched);
+          else votersMl.push(...enriched);
+        } catch (err) {
+          console.warn(`Failed to load ${ward}/${ps}_${lang}.json`);
         }
       }
     }
-
-    renderAllVoters();
-  } catch {
-    showError('Failed to load voter data');
-  } finally {
-    hideLoading();
   }
+
+  // Save cache
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ votersEn, votersMl }));
+
+  renderAllVoters();
+  hideLoading();
 }
 
-// --- GET CURRENT LANGUAGE POOL ---
+// Populate ward dropdown
+function populateWardDropdown() {
+  wardSel.innerHTML = '<option value="all">All Wards</option>';
+  WARDS.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = `Ward ${w}`;
+    wardSel.appendChild(opt);
+  });
+}
+
+// Get active language pool
 function getActiveVoterPool() {
   return langSel.value === 'malayalam' ? votersMl : votersEn;
 }
 
-// --- RENDER ALL VOTERS ---
+// Render all voters
 function renderAllVoters() {
   const ward = wardSel.value;
   let pool = getActiveVoterPool();
@@ -91,27 +106,27 @@ function renderAllVoters() {
   resultsEl.innerHTML = pool.map(v => rowHTML(v)).join('');
 }
 
-// --- RENDER ONE ROW ---
+// Row HTML
 function rowHTML(v) {
   return `
     <tr>
-      <td data-label="Serial">${v.serial}</td>
-      <td data-label="Ward">${v.ward}</td>
-      <td data-label="PS No">${v.polling_station_no}</td>
-      <td data-label="Name">${v.name}</td>
-      <td data-label="Guardian">${v.guardian}</td>
-      <td data-label="House No">${v.house_no}</td>
-      <td data-label="House Name">${v.house_name}</td>
-      <td data-label="Gender">${v.gender}</td>
-      <td data-label="Age">${v.age}</td>
-      <td data-label="ID">${v.id}</td>
-      <td data-label="Polling Station">${v.polling_station}</td>
+      <td>${v.serial}</td>
+      <td>${v.ward}</td>
+      <td>${v.polling_station_no}</td>
+      <td>${v.name}</td>
+      <td>${v.guardian}</td>
+      <td>${v.house_no}</td>
+      <td>${v.house_name}</td>
+      <td>${v.gender}</td>
+      <td>${v.age}</td>
+      <td>${v.id}</td>
+      <td>${v.polling_station}</td>
     </tr>
   `;
 }
 
-// --- SEARCH FUNCTION ---
-async function doSearch() {
+// Search
+function doSearch() {
   const q = searchInput.value.trim().toLowerCase();
   if (!q) return renderAllVoters();
 
@@ -122,12 +137,10 @@ async function doSearch() {
   let pool = getActiveVoterPool();
   if (ward !== 'all') pool = pool.filter(v => v.ward === ward);
 
-  // Search across all major fields
   const results = pool.filter(v => {
-    const text = `${v.serial} ${v.name} ${v.guardian} ${v.house_name} ${v.house_no} ${v.polling_station_no} ${v.id}`
-      .toLowerCase();
+    const text = `${v.serial} ${v.name} ${v.guardian} ${v.house_name} ${v.house_no} ${v.polling_station_no} ${v.id}`.toLowerCase();
     return text.includes(q);
-  }).slice(0, 50); // limit results for performance
+  }).slice(0, 50);
 
   hideLoading();
 
@@ -139,7 +152,7 @@ async function doSearch() {
   }
 }
 
-// --- EVENT LISTENERS ---
+// Events
 window.addEventListener('load', loadData);
 langSel.addEventListener('change', renderAllVoters);
 wardSel.addEventListener('change', renderAllVoters);

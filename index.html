@@ -1,65 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voter Search</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
+
+  <!-- Loading Screen -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading...</div>
+  </div>
+
+  <header>
     <h1>Voter Search</h1>
   </header>
 
-  <!-- Controls -->
-  <div class="container card">
+  <main>
     <div class="controls">
       <select id="language">
-        <option value="en">English</option>
-        <option value="ml">Malayalam</option>
+        <option value="english">English</option>
+        <option value="malayalam">മലയാളം</option>
       </select>
 
-      <select id="ward"></select>
+      <select id="ward">
+        <option value="all">All Wards</option>
+      </select>
 
-      <div class="search-box">
-        <input type="text" id="search" placeholder="Search by name, house, or PS..."/>
-        <button id="searchBtn">Search</button>
-      </div>
+      <input type="text" id="search" placeholder="Search voters...">
+      <button id="searchBtn">Search</button>
     </div>
 
     <div id="error" class="error"></div>
 
-    <!-- Results -->
-    <div class="results-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Serial</th>
-            <th>Ward</th>
-            <th>PS No</th>
-            <th>Name</th>
-            <th>Guardian</th>
-            <th>House No</th>
-            <th>House Name</th>
-            <th>Gender</th>
-            <th>Age</th>
-            <th>ID</th>
-            <th>Polling Station</th>
-          </tr>
-        </thead>
-        <tbody id="results"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Loading Screen -->
-  <div id="loading" class="loading">
-    <div class="spinner-container">
-      <div class="spinner"></div>
-      <p class="loading-text">Loading voter data...</p>
-    </div>
-  </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Serial</th>
+          <th>Ward</th>
+          <th>PS No</th>
+          <th>Name</th>
+          <th>Guardian</th>
+          <th>House No</th>
+          <th>House Name</th>
+          <th>Gender</th>
+          <th>Age</th>
+          <th>ID</th>
+          <th>Polling Station</th>
+        </tr>
+      </thead>
+      <tbody id="results"></tbody>
+    </table>
+  </main>
 
   <script src="script.js"></script>
 </body>
