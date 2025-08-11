@@ -7,49 +7,62 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Voter Search</h1>
 
+  <!-- Header -->
+  <header class="header">
+    <h1>Voter Search</h1>
+  </header>
+
+  <!-- Loading overlay -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <div class="loading-text">Loading data, please wait...</div>
   </div>
 
-  <div class="controls">
-    <select id="language">
-      <option value="english">English</option>
-      <option value="malayalam">Malayalam</option>
-    </select>
-    <select id="ward">
-      <option value="all">All Wards</option>
-    </select>
-    <div class="search-box">
-      <input id="search" placeholder="Type name, guardian, house or ID…" />
-      <button id="searchBtn">Search</button>
+  <!-- Main container -->
+  <div class="container">
+
+    <!-- Controls -->
+    <div class="controls card">
+      <select id="language">
+        <option value="en">English</option>
+        <option value="ml">Malayalam</option>
+      </select>
+      <select id="ward">
+        <option value="all">All Wards</option>
+      </select>
+      <div class="search-box">
+        <input id="search" placeholder="Type name, guardian, house or ID…" />
+        <button id="searchBtn">Search</button>
+      </div>
     </div>
-  </div>
 
-  <div class="results-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Serial</th>
-          <th>Ward</th>
-          <th>PS No</th>
-          <th>Name</th>
-          <th>Guardian</th>
-          <th>House No</th>
-          <th>House Name</th>
-          <th>Gender</th>
-          <th>Age</th>
-          <th>ID</th>
-          <th>Polling Station</th>
-        </tr>
-      </thead>
-      <tbody id="results"></tbody>
-    </table>
-  </div>
+    <!-- Error message -->
+    <div id="error" class="error"></div>
 
-  <div id="error" class="error"></div>
+    <!-- Results -->
+    <div class="results-container card">
+      <table>
+        <thead>
+          <tr>
+            <th>Serial</th>
+            <th>Ward</th>
+            <th>PS No</th>
+            <th>Name</th>
+            <th>Guardian</th>
+            <th>House No</th>
+            <th>House Name</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>ID</th>
+            <th>Polling Station</th>
+          </tr>
+        </thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
+
+  </div>
 
   <script src="script.js"></script>
 </body>
