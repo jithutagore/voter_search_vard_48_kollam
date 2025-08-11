@@ -134,7 +134,7 @@ async function doSearch() {
 
     const results = pool
       .filter(v => {
-        const searchText = `${v.name} ${v.guardian} ${v.house_name} ${v.house_no}`
+        const searchText = `${v.name} ${v.guardian} ${v.house_name} ${v.house_no}  ${v.polling_station_no}`
           .toLowerCase();
         return searchText.includes(q);
       })
