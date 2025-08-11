@@ -39,12 +39,18 @@ async function loadData() {
 
   const cached = localStorage.getItem(CACHE_KEY);
   if (cached) {
+    const start = Date.now();
     const parsed = JSON.parse(cached);
     votersEn = parsed.votersEn;
     votersMl = parsed.votersMl;
     populateWardDropdown();
     renderAllVoters();
-    hideLoading();
+
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(1000 - elapsed, 0); // min 1 sec
+    setTimeout(() => {
+      hideLoading();
+    }, remaining);
     return;
   }
 
@@ -128,33 +134,62 @@ function rowHTML(v) {
 // Search
 function doSearch() {
   const q = searchInput.value.trim().toLowerCase();
-  if (!q) return renderAllVoters();
-
   showLoading('Searching...');
   hideError();
 
-  const ward = wardSel.value;
-  let pool = getActiveVoterPool();
-  if (ward !== 'all') pool = pool.filter(v => v.ward === ward);
+  setTimeout(() => {
+    const ward = wardSel.value;
+    let pool = getActiveVoterPool();
+    if (ward !== 'all') pool = pool.filter(v => v.ward === ward);
 
-  const results = pool.filter(v => {
-    const text = `${v.serial} ${v.name} ${v.guardian} ${v.house_name} ${v.house_no} ${v.polling_station_no} ${v.id}`.toLowerCase();
-    return text.includes(q);
-  }).slice(0, 50);
+    let results;
+    if (q) {
+      results = pool.filter(v => {
+        const text = `${v.serial} ${v.name} ${v.guardian} ${v.house_name} ${v.house_no} ${v.polling_station_no} ${v.id}`.toLowerCase();
+        return text.includes(q);
+      }).slice(0, 50);
+    } else {
+      results = pool;
+    }
 
-  hideLoading();
+    hideLoading();
 
-  if (results.length) {
-    resultsEl.innerHTML = results.map(v => rowHTML(v)).join('');
-  } else {
-    resultsEl.innerHTML = '';
-    showError('No results found.');
-  }
+    if (results.length) {
+      resultsEl.innerHTML = results.map(v => rowHTML(v)).join('');
+    } else {
+      resultsEl.innerHTML = '';
+      showError('No results found.');
+    }
+  }, 200);
 }
 
 // Events
 window.addEventListener('load', loadData);
-langSel.addEventListener('change', renderAllVoters);
-wardSel.addEventListener('change', renderAllVoters);
+
+// Language switch with 2-sec loading screen
+langSel.addEventListener('change', () => {
+  showLoading('Switching language...');
+  const start = Date.now();
+  requestAnimationFrame(() => {
+    renderAllVoters();
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(2000 - elapsed, 0); // min 2 sec
+    setTimeout(() => {
+      hideLoading();
+    }, remaining);
+  });
+});
+
+// Ward switch with loading screen
+wardSel.addEventListener('change', () => {
+  showLoading('Filtering ward...');
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      renderAllVoters();
+      hideLoading();
+    }, 300);
+  });
+});
+
 searchBtn.addEventListener('click', doSearch);
 searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
