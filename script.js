@@ -1,22 +1,17 @@
-// Voter Search System - Complete Implementation
+// Voter Search System - SQLite Implementation
 class VoterSearch {
   constructor() {
-    this.allVoters = [];
+    this.db = null;
     this.currentLanguage = 'english';
-    this.wards = {
-      '048': 6,
-      '049': 5
-    };
-    this.cacheKey = 'voterData_v1';
-    this.cacheDuration = 7 * 24 * 60 * 60 * 1000; // 7 days
+    this.SQL = null;
     
     this.init();
   }
 
   async init() {
     this.setupEventListeners();
-    await this.loadData();
-    this.displayAllData(); // Display all data initially
+    await this.loadDatabase();
+    this.displayAllData();
     this.hideLoader();
   }
 
@@ -69,130 +64,100 @@ class VoterSearch {
     if (loader) loader.style.display = 'none';
   }
 
-  async loadData() {
+  async loadDatabase() {
     this.showLoader();
     
     try {
-      // Check cache first
-      const cached = this.getCachedData();
-      if (cached) {
-        this.allVoters = cached;
-        console.log('Loaded data from cache:', cached.length, 'records');
-        return;
-      }
-
-      // Load fresh data
-      const voters = [];
+      // Load sql.js library
+      this.SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+      });
       
-      for (const [ward, pollingStations] of Object.entries(this.wards)) {
-        for (let ps = 1; ps <= pollingStations; ps++) {
-          for (const lang of ['english', 'malayalam']) {
-            try {
-              const response = await fetch(`data/${ward}/${ps}_${lang}.json`);
-              if (response.ok) {
-                const data = await response.json();
-                if (data.voters && Array.isArray(data.voters)) {
-                  data.voters.forEach(voter => {
-                    voters.push({
-                      ...voter,
-                      ward: ward, // Normalized ward number
-                      wardName: data.ward,
-                      pollingStation: data.polling_station,
-                      district: data.district,
-                      localBody: data.local_body,
-                      language: lang
-                    });
-                  });
-                }
-              }
-            } catch (err) {
-              console.error(`Error loading ${ward}/${ps}_${lang}.json:`, err);
-            }
-          }
-        }
-      }
-
-      this.allVoters = voters;
-      this.setCachedData(voters);
-      console.log(`Loaded ${voters.length} voter records from files`);
+      // Load database file
+      const response = await fetch('voters.db');
+      const buffer = await response.arrayBuffer();
+      this.db = new this.SQL.Database(new Uint8Array(buffer));
+      
+      console.log('Database loaded successfully');
       
     } catch (error) {
-      console.error('Error loading data:', error);
-      this.showError('Failed to load voter data. Please refresh the page.');
-    }
-  }
-
-  getCachedData() {
-    try {
-      const cached = localStorage.getItem(this.cacheKey);
-      if (!cached) return null;
-
-      const { data, timestamp } = JSON.parse(cached);
-      const now = Date.now();
-
-      if (now - timestamp > this.cacheDuration) {
-        localStorage.removeItem(this.cacheKey);
-        return null;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error reading cache:', error);
-      return null;
-    }
-  }
-
-  setCachedData(data) {
-    try {
-      const cacheObject = {
-        data: data,
-        timestamp: Date.now()
-      };
-      localStorage.setItem(this.cacheKey, JSON.stringify(cacheObject));
-    } catch (error) {
-      console.error('Error setting cache:', error);
+      console.error('Error loading database:', error);
+      this.showError('Failed to load voter database. Please refresh the page.');
     }
   }
 
   displayAllData() {
-    // Display all data for current language initially
-    const results = this.allVoters.filter(voter => voter.language === this.currentLanguage);
-    this.displayResults(results);
+    if (!this.db) return;
+    
+    try {
+      const stmt = this.db.prepare(`
+        SELECT * FROM voters 
+        WHERE language = :language
+        ORDER BY ward, serial
+      `);
+      
+      stmt.bind({ ':language': this.currentLanguage });
+      
+      const results = [];
+      while (stmt.step()) {
+        results.push(stmt.getAsObject());
+      }
+      stmt.free();
+      
+      this.displayResults(results);
+    } catch (error) {
+      console.error('Error displaying data:', error);
+    }
   }
 
   performSearch() {
+    if (!this.db) return;
+    
     const searchInput = document.getElementById('searchInput');
     const wardFilter = document.getElementById('wardFilter');
     
-    const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
     const selectedWard = wardFilter ? wardFilter.value : 'all';
 
-    // Start with voters in current language
-    let results = this.allVoters.filter(voter => voter.language === this.currentLanguage);
+    try {
+      let query = 'SELECT * FROM voters WHERE language = :language';
+      const params = { ':language': this.currentLanguage };
 
-    // Apply ward filter
-    if (selectedWard !== 'all') {
-      results = results.filter(voter => voter.ward === selectedWard);
+      // Add ward filter
+      if (selectedWard !== 'all') {
+        query += ' AND ward = :ward';
+        params[':ward'] = selectedWard;
+      }
+
+      // Add search filter
+      if (searchTerm) {
+        query += ` AND (
+          name LIKE :search OR
+          guardian LIKE :search OR
+          house_no LIKE :search OR
+          house_name LIKE :search OR
+          voter_id LIKE :search
+        )`;
+        params[':search'] = `%${searchTerm}%`;
+      }
+
+      query += ' ORDER BY ward, serial';
+
+      const stmt = this.db.prepare(query);
+      stmt.bind(params);
+      
+      const results = [];
+      while (stmt.step()) {
+        results.push(stmt.getAsObject());
+      }
+      stmt.free();
+      
+      this.displayResults(results);
+      
+    } catch (error) {
+      console.error('Error performing search:', error);
+      this.showError('An error occurred during search. Please try again.');
     }
-
-    // Apply search filter only if there's a search term
-    if (searchTerm) {
-      results = results.filter(voter => {
-        const name = (voter.name || '').toLowerCase();
-        const guardian = (voter.guardian || '').toLowerCase();
-        const houseNo = (voter.house_no || '').toLowerCase();
-        const houseName = (voter.house_name || '').toLowerCase();
-        const id = (voter.id || '').toLowerCase();
-
-        return name.includes(searchTerm) ||
-               guardian.includes(searchTerm) ||
-               houseNo.includes(searchTerm) ||
-               houseName.includes(searchTerm) ||
-               id.includes(searchTerm);
-      });
-    }
-
-    this.displayResults(results);
   }
 
   displayResults(results) {
@@ -244,9 +209,9 @@ class VoterSearch {
         <td data-label="House Name">${this.escapeHtml(voter.house_name || '-')}</td>
         <td data-label="Gender">${voter.gender || '-'}</td>
         <td data-label="Age">${voter.age || '-'}</td>
-        <td data-label="Voter ID">${voter.id || '-'}</td>
-        <td data-label="Ward">${this.escapeHtml(voter.wardName || voter.ward || '-')}</td>
-        <td data-label="Polling Station">${this.escapeHtml(voter.pollingStation || '-')}</td>
+        <td data-label="Voter ID">${voter.voter_id || '-'}</td>
+        <td data-label="Ward">${this.escapeHtml(voter.ward_name || voter.ward || '-')}</td>
+        <td data-label="Polling Station">${this.escapeHtml(voter.polling_station || '-')}</td>
       `;
       tbody.appendChild(row);
     });
@@ -263,7 +228,6 @@ class VoterSearch {
     if (searchInput) searchInput.value = '';
     if (wardFilter) wardFilter.value = 'all';
     
-    // Display all data again after clearing
     this.displayAllData();
   }
 
