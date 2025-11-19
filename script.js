@@ -1,10 +1,8 @@
-// Voter Search System - SQLite Implementation
+// Voter Search System - Single Table with Bilingual Fields
 class VoterSearch {
   constructor() {
     this.db = null;
-    this.currentLanguage = 'english';
     this.SQL = null;
-    
     this.init();
   }
 
@@ -29,15 +27,6 @@ class VoterSearch {
         if (e.key === 'Enter') {
           this.performSearch();
         }
-      });
-    }
-
-    // Language toggle
-    const languageToggle = document.getElementById('languageToggle');
-    if (languageToggle) {
-      languageToggle.addEventListener('change', (e) => {
-        this.currentLanguage = e.target.checked ? 'malayalam' : 'english';
-        this.performSearch();
       });
     }
 
@@ -91,12 +80,10 @@ class VoterSearch {
     
     try {
       const stmt = this.db.prepare(`
-        SELECT * FROM voters 
-        WHERE language = :language
+        SELECT * FROM voters
         ORDER BY ward, serial
+        LIMIT 1000
       `);
-      
-      stmt.bind({ ':language': this.currentLanguage });
       
       const results = [];
       while (stmt.step()) {
@@ -107,6 +94,7 @@ class VoterSearch {
       this.displayResults(results);
     } catch (error) {
       console.error('Error displaying data:', error);
+      this.showError('Error reading database');
     }
   }
 
@@ -120,28 +108,44 @@ class VoterSearch {
     const selectedWard = wardFilter ? wardFilter.value : 'all';
 
     try {
-      let query = 'SELECT * FROM voters WHERE language = :language';
-      const params = { ':language': this.currentLanguage };
+      let query = `
+        SELECT * FROM voters
+        WHERE (
+          name_en LIKE :search OR
+          name_ml LIKE :search OR
+          guardian_en LIKE :search OR
+          guardian_ml LIKE :search OR
+          house_no LIKE :search OR
+          house_name_en LIKE :search OR
+          house_name_ml LIKE :search OR
+          voter_id LIKE :search
+        )
+      `;
+      
+      const params = { ':search': `%${searchTerm}%` };
 
       // Add ward filter
       if (selectedWard !== 'all') {
-        query += ' AND ward = :ward';
+        query += ` AND ward = :ward`;
         params[':ward'] = selectedWard;
       }
 
-      // Add search filter
-      if (searchTerm) {
-        query += ` AND (
-          name LIKE :search OR
-          guardian LIKE :search OR
-          house_no LIKE :search OR
-          house_name LIKE :search OR
-          voter_id LIKE :search
-        )`;
-        params[':search'] = `%${searchTerm}%`;
-      }
+      query += ' ORDER BY ward, serial LIMIT 2000';
 
-      query += ' ORDER BY ward, serial';
+      // If no search term but ward selected, show ward-only results
+      if (!searchTerm && selectedWard !== 'all') {
+        query = `
+          SELECT * FROM voters
+          WHERE ward = :ward
+          ORDER BY serial
+          LIMIT 2000
+        `;
+        delete params[':search'];
+      } else if (!searchTerm && selectedWard === 'all') {
+        // No search, no filter - show all
+        this.displayAllData();
+        return;
+      }
 
       const stmt = this.db.prepare(query);
       stmt.bind(params);
@@ -183,10 +187,10 @@ class VoterSearch {
     thead.innerHTML = `
       <tr>
         <th>Serial</th>
-        <th>Name</th>
-        <th>Guardian</th>
+        <th>Name (EN / ML)</th>
+        <th>Guardian (EN / ML)</th>
         <th>House No</th>
-        <th>House Name</th>
+        <th>House Name (EN / ML)</th>
         <th>Gender</th>
         <th>Age</th>
         <th>Voter ID</th>
@@ -201,12 +205,37 @@ class VoterSearch {
     
     results.forEach(voter => {
       const row = document.createElement('tr');
+      
+      // Name with both languages
+      const nameHtml = `
+        <div class="bilingual-field">
+          <div class="lang-en">${this.escapeHtml(voter.name_en || '-')}</div>
+          ${voter.name_ml ? `<div class="lang-ml">${this.escapeHtml(voter.name_ml)}</div>` : ''}
+        </div>
+      `;
+      
+      // Guardian with both languages
+      const guardianHtml = `
+        <div class="bilingual-field">
+          <div class="lang-en">${this.escapeHtml(voter.guardian_en || '-')}</div>
+          ${voter.guardian_ml ? `<div class="lang-ml">${this.escapeHtml(voter.guardian_ml)}</div>` : ''}
+        </div>
+      `;
+      
+      // House Name with both languages
+      const houseNameHtml = `
+        <div class="bilingual-field">
+          <div class="lang-en">${this.escapeHtml(voter.house_name_en || '-')}</div>
+          ${voter.house_name_ml ? `<div class="lang-ml">${this.escapeHtml(voter.house_name_ml)}</div>` : ''}
+        </div>
+      `;
+      
       row.innerHTML = `
         <td data-label="Serial">${voter.serial || '-'}</td>
-        <td data-label="Name">${this.escapeHtml(voter.name || '-')}</td>
-        <td data-label="Guardian">${this.escapeHtml(voter.guardian || '-')}</td>
+        <td data-label="Name">${nameHtml}</td>
+        <td data-label="Guardian">${guardianHtml}</td>
         <td data-label="House No">${this.escapeHtml(voter.house_no || '-')}</td>
-        <td data-label="House Name">${this.escapeHtml(voter.house_name || '-')}</td>
+        <td data-label="House Name">${houseNameHtml}</td>
         <td data-label="Gender">${voter.gender || '-'}</td>
         <td data-label="Age">${voter.age || '-'}</td>
         <td data-label="Voter ID">${voter.voter_id || '-'}</td>
@@ -239,8 +268,9 @@ class VoterSearch {
   }
 
   escapeHtml(text) {
+    if (text === null || text === undefined) return '';
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = String(text);
     return div.innerHTML;
   }
 }
