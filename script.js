@@ -183,16 +183,25 @@ class VoterSearch {
                 <div class="serial-box">${voter.serial || "-"}</div>
             </div>
 
+            <!-- ⭐ PRIORITY BLOCK 1 — WARD (HIGHLIGHTED BLUE) -->
             <div class="info-block block-blue">
-                <div class="block-title">Voter ID</div>
-                <div class="block-data">${voter.voter_id}</div>
+                <div class="block-title">Ward</div>
+                <div class="block-data">${voter.ward}</div>
             </div>
 
+            <!-- ⭐ PRIORITY BLOCK 2 — POLLING STATION -->
             <div class="info-block block-blue">
                 <div class="block-title">Polling Station</div>
                 <div class="block-data">${voter.polling_station}</div>
             </div>
 
+            <!-- ⭐ PRIORITY BLOCK 3 — VOTER ID -->
+            <div class="info-block block-blue">
+                <div class="block-title">Voter ID</div>
+                <div class="block-data">${voter.voter_id}</div>
+            </div>
+
+            <!-- ⭐ HOUSE — LAST BLOCK -->
             <div class="info-block block-green">
                 <div class="block-title">House</div>
                 <div class="block-data">
@@ -202,15 +211,11 @@ class VoterSearch {
                 </div>
             </div>
 
+            <!-- BOTTOM GRID -->
             <div class="bottom-grid">
                 <div class="grid-item">
                     <div class="grid-label">Gender & Age</div>
                     <div class="grid-value">${voter.gender} / ${voter.age}</div>
-                </div>
-
-                <div class="grid-item">
-                    <div class="grid-label">Ward</div>
-                    <div class="grid-value">${voter.ward}</div>
                 </div>
 
                 <div class="grid-item">
@@ -241,6 +246,7 @@ class VoterSearch {
         resultsDiv.appendChild(card);
     });
 }
+
 
 
   clearSearch() {
