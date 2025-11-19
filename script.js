@@ -37,10 +37,7 @@ class VoterSearch {
     }
 
     // Clear button
-    const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => this.clearSearch());
-    }
+    
   }
 
   showLoader() {
@@ -167,88 +164,90 @@ class VoterSearch {
   displayResults(results) {
     const resultsDiv = document.getElementById('results');
     const resultsCount = document.getElementById('resultsCount');
-    
-    if (!resultsDiv) return;
 
     if (resultsCount) {
-      resultsCount.textContent = `Showing ${results.length} voter${results.length !== 1 ? 's' : ''}`;
+        resultsCount.textContent = `Showing ${results.length} result(s)`;
     }
 
-    if (results.length === 0) {
-      resultsDiv.innerHTML = '<div class="no-results">No voters found matching your search criteria.</div>';
-      return;
+    if (!results.length) {
+        resultsDiv.innerHTML = `<div class="no-results">No voters found.</div>`;
+        return;
     }
 
-    const table = document.createElement('table');
-    table.className = 'results-table';
-    
-    // Create table header
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-      <tr>
-        <th>Serial</th>
-        <th>Name (EN / ML)</th>
-        <th>Guardian (EN / ML)</th>
-        <th>House No</th>
-        <th>House Name (EN / ML)</th>
-        <th>Gender</th>
-        <th>Age</th>
-        <th>Voter ID</th>
-        <th>Ward</th>
-        <th>Polling Station</th>
-      </tr>
-    `;
-    table.appendChild(thead);
+    resultsDiv.innerHTML = "";
 
-    // Create table body
-    const tbody = document.createElement('tbody');
-    
     results.forEach(voter => {
-      const row = document.createElement('tr');
-      
-      // Name with both languages
-      const nameHtml = `
-        <div class="bilingual-field">
-          <div class="lang-en">${this.escapeHtml(voter.name_en || '-')}</div>
-          ${voter.name_ml ? `<div class="lang-ml">${this.escapeHtml(voter.name_ml)}</div>` : ''}
-        </div>
-      `;
-      
-      // Guardian with both languages
-      const guardianHtml = `
-        <div class="bilingual-field">
-          <div class="lang-en">${this.escapeHtml(voter.guardian_en || '-')}</div>
-          ${voter.guardian_ml ? `<div class="lang-ml">${this.escapeHtml(voter.guardian_ml)}</div>` : ''}
-        </div>
-      `;
-      
-      // House Name with both languages
-      const houseNameHtml = `
-        <div class="bilingual-field">
-          <div class="lang-en">${this.escapeHtml(voter.house_name_en || '-')}</div>
-          ${voter.house_name_ml ? `<div class="lang-ml">${this.escapeHtml(voter.house_name_ml)}</div>` : ''}
-        </div>
-      `;
-      
-      row.innerHTML = `
-        <td data-label="Serial">${voter.serial || '-'}</td>
-        <td data-label="Name">${nameHtml}</td>
-        <td data-label="Guardian">${guardianHtml}</td>
-        <td data-label="House No">${this.escapeHtml(voter.house_no || '-')}</td>
-        <td data-label="House Name">${houseNameHtml}</td>
-        <td data-label="Gender">${voter.gender || '-'}</td>
-        <td data-label="Age">${voter.age || '-'}</td>
-        <td data-label="Voter ID">${voter.voter_id || '-'}</td>
-        <td data-label="Ward">${this.escapeHtml(voter.ward_name || voter.ward || '-')}</td>
-        <td data-label="Polling Station">${this.escapeHtml(voter.polling_station || '-')}</td>
-      `;
-      tbody.appendChild(row);
-    });
+        const card = document.createElement("div");
+        card.className = "voter-card";
 
-    table.appendChild(tbody);
-    resultsDiv.innerHTML = '';
-    resultsDiv.appendChild(table);
-  }
+        card.innerHTML = `
+            <div class="card-header">
+                <div>
+                    <div class="card-name">${voter.name_en || "-"}</div>
+                    <div class="card-name-ml">${voter.name_ml || ""}</div>
+                </div>
+                <div class="serial-box">${voter.serial || "-"}</div>
+            </div>
+
+            <div class="info-block block-blue">
+                <div class="block-title">Voter ID</div>
+                <div class="block-data">${voter.voter_id}</div>
+            </div>
+
+            <div class="info-block block-blue">
+                <div class="block-title">Polling Station</div>
+                <div class="block-data">${voter.polling_station}</div>
+            </div>
+
+            <div class="info-block block-green">
+                <div class="block-title">House</div>
+                <div class="block-data">
+                    ${voter.house_no || ""} ${voter.house_name_en || ""}
+                    <br>
+                    <span style="opacity:0.75">${voter.house_name_ml || ""}</span>
+                </div>
+            </div>
+
+            <div class="bottom-grid">
+                <div class="grid-item">
+                    <div class="grid-label">Gender & Age</div>
+                    <div class="grid-value">${voter.gender} / ${voter.age}</div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="grid-label">Ward</div>
+                    <div class="grid-value">${voter.ward}</div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="grid-label">Guardian</div>
+                    <div class="grid-value">
+                        ${voter.guardian_en || ""}<br>
+                        ${voter.guardian_ml || ""}
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="grid-label">District</div>
+                    <div class="grid-value">${voter.district || "KOLLAM"}</div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="grid-label">Local Body</div>
+                    <div class="grid-value">${voter.local_body || ""}</div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="grid-label">Ward Name</div>
+                    <div class="grid-value">${voter.ward_name || ""}</div>
+                </div>
+            </div>
+        `;
+
+        resultsDiv.appendChild(card);
+    });
+}
+
 
   clearSearch() {
     const searchInput = document.getElementById('searchInput');
