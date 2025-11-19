@@ -16,6 +16,7 @@ class VoterSearch {
   async init() {
     this.setupEventListeners();
     await this.loadData();
+    this.displayAllData(); // Display all data initially
     this.hideLoader();
   }
 
@@ -32,6 +33,9 @@ class VoterSearch {
       searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') this.performSearch();
       });
+      
+      // Real-time search as user types
+      searchInput.addEventListener('input', () => this.performSearch());
     }
 
     // Language toggle
@@ -74,7 +78,7 @@ class VoterSearch {
       const cached = this.getCachedData();
       if (cached) {
         this.allVoters = cached;
-        console.log('Loaded data from cache');
+        console.log('Loaded data from cache:', cached.length, 'records');
         return;
       }
 
@@ -111,7 +115,7 @@ class VoterSearch {
 
       this.allVoters = voters;
       this.setCachedData(voters);
-      console.log(`Loaded ${voters.length} voter records`);
+      console.log(`Loaded ${voters.length} voter records from files`);
       
     } catch (error) {
       console.error('Error loading data:', error);
@@ -151,43 +155,45 @@ class VoterSearch {
     }
   }
 
+  displayAllData() {
+    // Display all data for current language initially
+    const results = this.allVoters.filter(voter => voter.language === this.currentLanguage);
+    this.displayResults(results);
+  }
+
   performSearch() {
-    this.showLoader();
+    const searchInput = document.getElementById('searchInput');
+    const wardFilter = document.getElementById('wardFilter');
     
-    setTimeout(() => {
-      const searchInput = document.getElementById('searchInput');
-      const wardFilter = document.getElementById('wardFilter');
-      
-      const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
-      const selectedWard = wardFilter ? wardFilter.value : 'all';
+    const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const selectedWard = wardFilter ? wardFilter.value : 'all';
 
-      let results = this.allVoters.filter(voter => voter.language === this.currentLanguage);
+    // Start with voters in current language
+    let results = this.allVoters.filter(voter => voter.language === this.currentLanguage);
 
-      // Apply ward filter
-      if (selectedWard !== 'all') {
-        results = results.filter(voter => voter.ward === selectedWard);
-      }
+    // Apply ward filter
+    if (selectedWard !== 'all') {
+      results = results.filter(voter => voter.ward === selectedWard);
+    }
 
-      // Apply search filter
-      if (searchTerm) {
-        results = results.filter(voter => {
-          const name = (voter.name || '').toLowerCase();
-          const guardian = (voter.guardian || '').toLowerCase();
-          const houseNo = (voter.house_no || '').toLowerCase();
-          const houseName = (voter.house_name || '').toLowerCase();
-          const id = (voter.id || '').toLowerCase();
+    // Apply search filter only if there's a search term
+    if (searchTerm) {
+      results = results.filter(voter => {
+        const name = (voter.name || '').toLowerCase();
+        const guardian = (voter.guardian || '').toLowerCase();
+        const houseNo = (voter.house_no || '').toLowerCase();
+        const houseName = (voter.house_name || '').toLowerCase();
+        const id = (voter.id || '').toLowerCase();
 
-          return name.includes(searchTerm) ||
-                 guardian.includes(searchTerm) ||
-                 houseNo.includes(searchTerm) ||
-                 houseName.includes(searchTerm) ||
-                 id.includes(searchTerm);
-        });
-      }
+        return name.includes(searchTerm) ||
+               guardian.includes(searchTerm) ||
+               houseNo.includes(searchTerm) ||
+               houseName.includes(searchTerm) ||
+               id.includes(searchTerm);
+      });
+    }
 
-      this.displayResults(results);
-      this.hideLoader();
-    }, 100);
+    this.displayResults(results);
   }
 
   displayResults(results) {
@@ -197,7 +203,7 @@ class VoterSearch {
     if (!resultsDiv) return;
 
     if (resultsCount) {
-      resultsCount.textContent = `Found ${results.length} voter${results.length !== 1 ? 's' : ''}`;
+      resultsCount.textContent = `Showing ${results.length} voter${results.length !== 1 ? 's' : ''}`;
     }
 
     if (results.length === 0) {
@@ -254,13 +260,12 @@ class VoterSearch {
   clearSearch() {
     const searchInput = document.getElementById('searchInput');
     const wardFilter = document.getElementById('wardFilter');
-    const resultsDiv = document.getElementById('results');
-    const resultsCount = document.getElementById('resultsCount');
 
     if (searchInput) searchInput.value = '';
     if (wardFilter) wardFilter.value = 'all';
-    if (resultsDiv) resultsDiv.innerHTML = '';
-    if (resultsCount) resultsCount.textContent = '';
+    
+    // Display all data again after clearing
+    this.displayAllData();
   }
 
   showError(message) {
