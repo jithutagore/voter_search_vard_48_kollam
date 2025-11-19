@@ -96,70 +96,94 @@ class VoterSearch {
   }
 
   performSearch() {
-    if (!this.db) return;
-    
-    const searchInput = document.getElementById('searchInput');
-    const wardFilter = document.getElementById('wardFilter');
-    
-    const searchTerm = searchInput ? searchInput.value.trim() : '';
-    const selectedWard = wardFilter ? wardFilter.value : 'all';
+  if (!this.db) return;
 
-    try {
-      let query = `
-        SELECT * FROM voters
-        WHERE (
-          name_en LIKE :search OR
-          name_ml LIKE :search OR
-          guardian_en LIKE :search OR
-          guardian_ml LIKE :search OR
-          house_no LIKE :search OR
-          house_name_en LIKE :search OR
-          house_name_ml LIKE :search OR
-          voter_id LIKE :search
-        )
-      `;
-      
-      const params = { ':search': `%${searchTerm}%` };
+  const searchInput = document.getElementById('searchInput');
+  const wardFilter = document.getElementById('wardFilter');
 
-      // Add ward filter
-      if (selectedWard !== 'all') {
-        query += ` AND ward = :ward`;
-        params[':ward'] = selectedWard;
-      }
+  const searchTerm = searchInput ? searchInput.value.trim() : '';
+  const selectedWard = wardFilter ? wardFilter.value : 'all';
 
-      query += ' ORDER BY ward, serial LIMIT 2000';
+  try {
 
-      // If no search term but ward selected, show ward-only results
-      if (!searchTerm && selectedWard !== 'all') {
-        query = `
-          SELECT * FROM voters
-          WHERE ward = :ward
-          ORDER BY serial
-          LIMIT 2000
-        `;
-        delete params[':search'];
-      } else if (!searchTerm && selectedWard === 'all') {
-        // No search, no filter - show all
-        this.displayAllData();
-        return;
-      }
-
-      const stmt = this.db.prepare(query);
-      stmt.bind(params);
-      
-      const results = [];
-      while (stmt.step()) {
-        results.push(stmt.getAsObject());
-      }
-      stmt.free();
-      
-      this.displayResults(results);
-      
-    } catch (error) {
-      console.error('Error performing search:', error);
-      this.showError('An error occurred during search. Please try again.');
+    // Case 1: No search term + All wards → show all
+    if (!searchTerm && selectedWard === 'all') {
+      this.displayAllData();
+      return;
     }
+
+    // Case 2: No search term + Ward selected → only ward results
+    if (!searchTerm && selectedWard !== 'all') {
+      const stmt = this.db.prepare(`
+        SELECT * FROM voters
+        WHERE ward = :ward
+        ORDER BY serial
+        LIMIT 2000
+      `);
+      stmt.bind({ ':ward': selectedWard });
+
+      const results = [];
+      while (stmt.step()) results.push(stmt.getAsObject());
+      stmt.free();
+
+      this.displayResults(results);
+      return;
+    }
+
+
+    // Case 3: Search term present → PRIORITY SEARCH
+    let query = `
+      SELECT * FROM voters
+      WHERE (
+        name_en LIKE :search OR
+        name_ml LIKE :search OR
+        guardian_en LIKE :search OR
+        guardian_ml LIKE :search OR
+        house_no LIKE :search OR
+        house_name_en LIKE :search OR
+        house_name_ml LIKE :search OR
+        voter_id LIKE :search
+      )
+    `;
+
+    const params = {
+      ':search': `%${searchTerm}%`,
+      ':start': `${searchTerm}%`
+    };
+
+    // Add ward filter if selected
+    if (selectedWard !== 'all') {
+      query += ` AND ward = :ward`;
+      params[':ward'] = selectedWard;
+    }
+
+    // PRIORITY ORDERING
+    query += `
+      ORDER BY
+        CASE 
+          WHEN name_en LIKE :start OR name_ml LIKE :start THEN 0
+          ELSE 1
+        END,
+        ward,
+        serial
+      LIMIT 2000
+    `;
+
+    const stmt = this.db.prepare(query);
+    stmt.bind(params);
+
+    const results = [];
+    while (stmt.step()) results.push(stmt.getAsObject());
+    stmt.free();
+
+    this.displayResults(results);
+
+  } catch (error) {
+    console.error('Error performing search:', error);
+    this.showError('An error occurred during search. Please try again.');
   }
+}
+
 
   displayResults(results) {
     const resultsDiv = document.getElementById('results');
