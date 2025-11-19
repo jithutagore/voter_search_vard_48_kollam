@@ -47,8 +47,14 @@ class VoterSearch {
 
   hideLoader() {
     const loader = document.getElementById('loader');
-    if (loader) loader.style.display = 'none';
-  }
+    if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 400); // matches fade-out duration
+    }
+}
+
 
   async loadDatabase() {
     this.showLoader();
