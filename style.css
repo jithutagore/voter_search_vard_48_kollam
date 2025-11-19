@@ -221,87 +221,128 @@ body {
     word-wrap: break-word;
 }
 
+
 /* ============================
-   RESPONSIVE — MOBILE ENHANCED
+   MOBILE FIRST — ULTRA SMOOTH (≤768px)
 =============================== */
-
 @media (max-width: 768px) {
+    body { padding: 12px; }
 
-    /* Make search stack cleanly */
+    .header h1 { font-size: 2rem; }
+    .subtitle { font-size: 1rem; }
+
+    /* Search area — full width, better spacing */
     .search-controls {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 14px;
+    }
+
+    .search-input,
+    .filter-select {
+        padding: 16px 18px !important;   /* bigger touch target */
+        font-size: 17px !important;     /* prevents iOS zoom */
+    }
+
+    .button-group {
+        margin-top: 8px;
     }
 
     .btn {
         width: 100%;
+        padding: 16px 26px !important;
+        font-size: 17px !important;
+        height: 56px;                   /* perfect touch target */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
 
-    /* One card per row */
+    .btn svg { width: 20px; height: 20px; }
+
+    /* One card per row, generous spacing */
     .results-container {
         grid-template-columns: 1fr;
-        gap: 18px;
+        gap: 20px;
     }
 
-    /* Reduce padding */
-    .voter-card {
-        border-radius: 16px;
-    }
-
+    /* Card header — better name/serial layout */
     .card-header {
-        padding: 16px 18px;
+        padding: 18px 20px;
         flex-direction: row;
         align-items: flex-start;
-    }
-
-    /* B1 Layout — Name left (stacked), Serial right */
-    .card-header div:first-child {
-        flex: 1;
+        gap: 16px;
     }
 
     .card-name {
-        font-size: 20px;
+        font-size: 21px !important;
+        line-height: 1.3;
     }
-
     .card-name-ml {
-        font-size: 15px;
+        font-size: 15px !important;
+        line-height: 1.3;
     }
 
     .serial-box {
-        font-size: 22px;
-        margin-left: 12px;
-        margin-top: 4px;
-        white-space: nowrap;
+        font-size: 28px !important;
+        min-width: 60px;
+        text-align: center;
+        padding: 4px 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 8px;
+        margin-top: 0 !important;
     }
 
-    /* Blocks more compact */
+    /* Info blocks — more breathing room */
     .info-block {
-        padding: 14px 16px;
+        padding: 16px 20px;
     }
-
     .block-data {
-        font-size: 16px;
+        font-size: 17px !important;
+        line-height: 1.4;
     }
 
-    /* Convert bottom grid to full-width list */
+    /* Bottom grid → vertical list with better spacing */
     .bottom-grid {
         grid-template-columns: 1fr;
     }
 
     .grid-item {
+        padding: 16px 20px !important;
         border-right: none !important;
-        padding: 14px 16px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .grid-label {
+        font-size: 12px;
+        opacity: 0.7;
     }
 
     .grid-value {
-        font-size: 16px;
+        font-size: 17px !important;
+        margin-top: 4px;
     }
 
-    /* Slightly softer shadow for performance */
-    .voter-card {
-        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    /* First item in bottom grid shouldn’t have top border */
+    .bottom-grid > .grid-item:first-child {
+        border-top: none;
+    }
+
+    /* Slightly larger results count */
+    .results-count {
+        font-size: 17px;
+        padding: 0 4px;
     }
 }
+
+/* Extra small phones (≤380px) – final polish */
+@media (max-width: 380px) {
+    .header { padding: 30px 16px; }
+    .header h1 { font-size: 1.8rem; }
+    .card-header { padding: 16px; }
+    .serial-box { font-size: 24px !important; }
+}
+
 
 /* ============================
    MODERN BEAUTIFUL LOADER
