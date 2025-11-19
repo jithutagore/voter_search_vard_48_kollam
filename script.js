@@ -31,11 +31,10 @@ class VoterSearch {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
       searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') this.performSearch();
+        if (e.key === 'Enter') {
+          this.performSearch();
+        }
       });
-      
-      // Real-time search as user types
-      searchInput.addEventListener('input', () => this.performSearch());
     }
 
     // Language toggle
