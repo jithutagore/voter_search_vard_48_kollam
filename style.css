@@ -322,6 +322,25 @@ input:checked + .slider:before {
     font-size: 14px;
 }
 
+/* Bilingual Fields Styling */
+.bilingual-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lang-en {
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+}
+
+.lang-ml {
+    color: #666;
+    font-size: 14px;
+    font-style: italic;
+}
+
 /* Mobile Responsive - Tablet */
 @media (max-width: 1024px) {
     .search-controls {
