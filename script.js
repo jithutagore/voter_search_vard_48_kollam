@@ -30,13 +30,8 @@ class VoterSearch {
       });
     }
 
-    // Ward filter
-    const wardFilter = document.getElementById('wardFilter');
-    if (wardFilter) {
-      wardFilter.addEventListener('change', () => this.performSearch());
-    }
+    
 
-    // Clear button
     
   }
 
@@ -101,93 +96,62 @@ class VoterSearch {
     }
   }
 
-  performSearch() {
-  if (!this.db) return;
+ performSearch() {
+    if (!this.db) return;
 
-  const searchInput = document.getElementById('searchInput');
-  const wardFilter = document.getElementById('wardFilter');
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
 
-  const searchTerm = searchInput ? searchInput.value.trim() : '';
-  const selectedWard = wardFilter ? wardFilter.value : 'all';
+    try {
+        let results = [];
 
-  try {
+        if (!searchTerm) {
+            // No search term → show all (or first 1000 for performance)
+            const stmt = this.db.prepare(`
+                SELECT * FROM voters
+                ORDER BY ward, serial
+                LIMIT 1500
+            `);
+            while (stmt.step()) results.push(stmt.getAsObject());
+            stmt.free();
+        } else {
+            // With search term → smart bilingual search
+            const stmt = this.db.prepare(`
+                SELECT * FROM voters
+                WHERE (
+                    name_en LIKE :search OR
+                    name_ml LIKE :search OR
+                    guardian_en LIKE :search OR
+                    guardian_ml LIKE :search OR
+                    house_no LIKE :search OR
+                    house_name_en LIKE :search OR
+                    house_name_ml LIKE :search OR
+                    voter_id LIKE :search
+                )
+                ORDER BY
+                    CASE 
+                        WHEN name_en LIKE :start OR name_ml LIKE :start THEN 0
+                        ELSE 1
+                    END,
+                    serial
+                LIMIT 2000
+            `);
 
-    // Case 1: No search term + All wards → show all
-    if (!searchTerm && selectedWard === 'all') {
-      this.displayAllData();
-      return;
+            stmt.bind({
+                ':search': `%${searchTerm}%`,
+                ':start': `${searchTerm}%`
+            });
+
+            while (stmt.step()) results.push(stmt.getAsObject());
+            stmt.free();
+        }
+
+        this.displayResults(results);
+
+    } catch (error) {
+        console.error('Error performing search:', error);
+        this.showError('An error occurred during search. Please try again.');
     }
-
-    // Case 2: No search term + Ward selected → only ward results
-    if (!searchTerm && selectedWard !== 'all') {
-      const stmt = this.db.prepare(`
-        SELECT * FROM voters
-        WHERE ward = :ward
-        ORDER BY serial
-        LIMIT 2000
-      `);
-      stmt.bind({ ':ward': selectedWard });
-
-      const results = [];
-      while (stmt.step()) results.push(stmt.getAsObject());
-      stmt.free();
-
-      this.displayResults(results);
-      return;
-    }
-
-
-    // Case 3: Search term present → PRIORITY SEARCH
-    let query = `
-      SELECT * FROM voters
-      WHERE (
-        name_en LIKE :search OR
-        name_ml LIKE :search OR
-        guardian_en LIKE :search OR
-        guardian_ml LIKE :search OR
-        house_no LIKE :search OR
-        house_name_en LIKE :search OR
-        house_name_ml LIKE :search OR
-        voter_id LIKE :search
-      )
-    `;
-
-    const params = {
-      ':search': `%${searchTerm}%`,
-      ':start': `${searchTerm}%`
-    };
-
-    // Add ward filter if selected
-    if (selectedWard !== 'all') {
-      query += ` AND ward = :ward`;
-      params[':ward'] = selectedWard;
-    }
-
-    // PRIORITY ORDERING
-    query += `
-      ORDER BY
-        CASE 
-          WHEN name_en LIKE :start OR name_ml LIKE :start THEN 0
-          ELSE 1
-        END,
-        ward,
-        serial
-      LIMIT 2000
-    `;
-
-    const stmt = this.db.prepare(query);
-    stmt.bind(params);
-
-    const results = [];
-    while (stmt.step()) results.push(stmt.getAsObject());
-    stmt.free();
-
-    this.displayResults(results);
-
-  } catch (error) {
-    console.error('Error performing search:', error);
-    this.showError('An error occurred during search. Please try again.');
-  }
 }
 
 
