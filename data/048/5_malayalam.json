@@ -2656,7 +2656,7 @@
     },
     {
       "serial": 266,
-      "name": "ഷബിന്‍",
+      "name": "SHIFTED\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tഷബിന്‍",
       "guardian": "ഷാഹുല്‍ ഹമീദ്",
       "house_no": "048/104",
       "house_name": "ഷാഹുല്‍ മന്‍സില്‍",
@@ -14533,6 +14533,26 @@
       "gender": "F",
       "age": 23,
       "id": "SEC046400363"
+    },
+    {
+      "serial": 1454,
+      "name": "സാമീർ",
+      "guardian": "ഷംസുദ്ദീൻ",
+      "house_no": "048/1",
+      "house_name": "കൊട്ടിൽ പുരയിടം",
+      "gender": "M",
+      "age": 45,
+      "id": "SEC052547408"
+    },
+    {
+      "serial": 266,
+      "name": "ഷബിന്‍",
+      "guardian": "ഷാഹുല്‍ ഹമീദ്",
+      "house_no": "48/104",
+      "house_name": "ഷാഹുല്‍ മന്‍സില്‍",
+      "gender": "M",
+      "age": 33,
+      "id": "SEC037073415"
     }
   ]
 }

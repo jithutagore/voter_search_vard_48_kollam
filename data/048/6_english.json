@@ -2696,7 +2696,7 @@
     },
     {
       "serial": 270,
-      "name": "Nasim",
+      "name": "SHIFTED\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tNasim",
       "guardian": "Hameeda Beevi",
       "house_no": "048/245",
       "house_name": "Pazhayaveed",
@@ -16013,6 +16013,16 @@
       "gender": "F",
       "age": 36,
       "id": "SEC052195152"
+    },
+    {
+      "serial": 270,
+      "name": "Nasim",
+      "guardian": "Hameeda Beevi",
+      "house_no": "48/245",
+      "house_name": "Pazhayaveed",
+      "gender": "M",
+      "age": 55,
+      "id": "SEC037074010"
     }
   ]
 }

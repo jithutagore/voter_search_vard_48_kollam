@@ -8406,7 +8406,7 @@
     },
     {
       "serial": 841,
-      "name": "DELETED\n                                                                                                                                                                                                                                            മേരി",
+      "name": "DELETED\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tമേരി",
       "guardian": "സ്റ്റീഫന്‍",
       "house_no": "047/1062",
       "house_name": "ക്യു.എസ്.എസ്.കോളനി",
@@ -14583,6 +14583,46 @@
       "gender": "F",
       "age": 23,
       "id": "SEC052291927"
+    },
+    {
+      "serial": 1459,
+      "name": "എ നവാബ്",
+      "guardian": "എം അബ്ദുൽ റസാഖ്",
+      "house_no": "048/430",
+      "house_name": "ഡെപ്പോ പുരയിടം",
+      "gender": "M",
+      "age": 50,
+      "id": "SEC052556762"
+    },
+    {
+      "serial": 1460,
+      "name": "ഷഹീദ",
+      "guardian": "നൗഷാദ്",
+      "house_no": "048/955",
+      "house_name": "അൻസാർ മൻസിൽ",
+      "gender": "F",
+      "age": 46,
+      "id": "SEC052553175"
+    },
+    {
+      "serial": 1461,
+      "name": "നൗഷാദ് എ",
+      "guardian": "അബ്ദുൽ റസാഖ്",
+      "house_no": "048/955",
+      "house_name": "അൻസാർ മൻസിൽ",
+      "gender": "M",
+      "age": 53,
+      "id": "SEC052554137"
+    },
+    {
+      "serial": 1462,
+      "name": "നിതിൻ ഷാ",
+      "guardian": "നൗഷാദ്",
+      "house_no": "048/955",
+      "house_name": "അൻസാർ മൻസിൽ",
+      "gender": "M",
+      "age": 28,
+      "id": "SEC052553142"
     },
     {
       "serial": 841,

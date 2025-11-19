@@ -4486,7 +4486,7 @@
     },
     {
       "serial": 449,
-      "name": "DELETED\n                                                                                                                                                                                                                                            Viju",
+      "name": "DELETED\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tViju",
       "guardian": "Richard",
       "house_no": "047/108",
       "house_name": "Ech Ar Si Kolani",
@@ -15473,6 +15473,106 @@
       "gender": "F",
       "age": 18,
       "id": "SEC052182453"
+    },
+    {
+      "serial": 1548,
+      "name": "NAZARUDEEN A",
+      "guardian": "ABDUL SALAM",
+      "house_no": "048/127",
+      "house_name": "NEJAH PARAMBIL HOUSE",
+      "gender": "M",
+      "age": 51,
+      "id": "SEC052436123"
+    },
+    {
+      "serial": 1549,
+      "name": "NAZEERA A",
+      "guardian": "NAZARUDEEN A",
+      "house_no": "048/127",
+      "house_name": "NAJAH PARAMBIL HOUSE",
+      "gender": "F",
+      "age": 42,
+      "id": "SEC052436142"
+    },
+    {
+      "serial": 1550,
+      "name": "Neha firoz",
+      "guardian": "Firoz khan",
+      "house_no": "047/587",
+      "house_name": "Puthalathu bunglow",
+      "gender": "F",
+      "age": 20,
+      "id": "SEC052431081"
+    },
+    {
+      "serial": 1551,
+      "name": "Farhan",
+      "guardian": "Liaquath ali",
+      "house_no": "047/1333",
+      "house_name": "Farhath",
+      "gender": "M",
+      "age": 37,
+      "id": "SEC052431051"
+    },
+    {
+      "serial": 1552,
+      "name": "Faheema",
+      "guardian": "Liaquath Ali",
+      "house_no": "047/1333",
+      "house_name": "Farhath",
+      "gender": "F",
+      "age": 35,
+      "id": "SEC052381584"
+    },
+    {
+      "serial": 1553,
+      "name": "Shahitha",
+      "guardian": "Liaquath ali",
+      "house_no": "048/1333",
+      "house_name": "Farhath",
+      "gender": "F",
+      "age": 66,
+      "id": "SEC052382048"
+    },
+    {
+      "serial": 1554,
+      "name": "Shameer",
+      "guardian": "Kabeer",
+      "house_no": "047/360",
+      "house_name": "Viralathil thekkathil",
+      "gender": "M",
+      "age": 41,
+      "id": "SEC052381244"
+    },
+    {
+      "serial": 1555,
+      "name": "Noufiya",
+      "guardian": "Rahim",
+      "house_no": "047/1333",
+      "house_name": "Gandhi nagar 121",
+      "gender": "F",
+      "age": 21,
+      "id": "SEC052381197"
+    },
+    {
+      "serial": 1556,
+      "name": "Rishad",
+      "guardian": "Rahim",
+      "house_no": "047/1333",
+      "house_name": "Gandhi nagar 121",
+      "gender": "M",
+      "age": 22,
+      "id": "SEC052381973"
+    },
+    {
+      "serial": 1557,
+      "name": "Sherin",
+      "guardian": "Stanley",
+      "house_no": "047/1333",
+      "house_name": "Yahvi cottage",
+      "gender": "F",
+      "age": 48,
+      "id": "SEC052381907"
     },
     {
       "serial": 449,

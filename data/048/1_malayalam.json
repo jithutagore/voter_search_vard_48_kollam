@@ -4486,7 +4486,7 @@
     },
     {
       "serial": 449,
-      "name": "DELETED\n                                                                                                                                                                                                                                            വിജു",
+      "name": "DELETED\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tവിജു",
       "guardian": "റിച്ചാര്‍ഡ്",
       "house_no": "047/108",
       "house_name": "എച്ച് ആന്റ് സി കോളനി",
@@ -15473,6 +15473,106 @@
       "gender": "F",
       "age": 18,
       "id": "SEC052182453"
+    },
+    {
+      "serial": 1548,
+      "name": "നാസറുദ്ധീൻ എ",
+      "guardian": "അബ്ദുൽ സലാം",
+      "house_no": "048/127",
+      "house_name": "നെജാഹ് പറമ്പിൽ ഹൗസ്",
+      "gender": "M",
+      "age": 51,
+      "id": "SEC052436123"
+    },
+    {
+      "serial": 1549,
+      "name": "നസീറ എ",
+      "guardian": "നാസറുദ്ധീൻ എ",
+      "house_no": "048/127",
+      "house_name": "നെജാഹ് പറമ്പിൽ ഹൗസ്",
+      "gender": "F",
+      "age": 42,
+      "id": "SEC052436142"
+    },
+    {
+      "serial": 1550,
+      "name": "നേഹ ഫിറോസ്",
+      "guardian": "ഫിറോസ് ഖാൻ",
+      "house_no": "047/587",
+      "house_name": "പുത്തലത്ത് ബംഗ്ലാവ്",
+      "gender": "F",
+      "age": 20,
+      "id": "SEC052431081"
+    },
+    {
+      "serial": 1551,
+      "name": "ഫർഹാൻ",
+      "guardian": "ലിയാഖത്ത് അലി",
+      "house_no": "047/1333",
+      "house_name": "ഫർഹത്ത്",
+      "gender": "M",
+      "age": 37,
+      "id": "SEC052431051"
+    },
+    {
+      "serial": 1552,
+      "name": "ഫഹീമ",
+      "guardian": "ലിയാഖത്ത് അലി",
+      "house_no": "047/1333",
+      "house_name": "ഫർഹത്ത്",
+      "gender": "F",
+      "age": 35,
+      "id": "SEC052381584"
+    },
+    {
+      "serial": 1553,
+      "name": "ഷാഹിദ",
+      "guardian": "ലിയാഖത്ത് അലി",
+      "house_no": "048/1333",
+      "house_name": "ഫർഹത്ത്",
+      "gender": "F",
+      "age": 66,
+      "id": "SEC052382048"
+    },
+    {
+      "serial": 1554,
+      "name": "ഷമീർ",
+      "guardian": "കബീർ",
+      "house_no": "047/360",
+      "house_name": "വിരളത്തിൽ തെക്കതിൽ",
+      "gender": "M",
+      "age": 41,
+      "id": "SEC052381244"
+    },
+    {
+      "serial": 1555,
+      "name": "നൗഫിയ",
+      "guardian": "റഹീം",
+      "house_no": "047/1333",
+      "house_name": "ഗാന്ധി നഗർ 121",
+      "gender": "F",
+      "age": 21,
+      "id": "SEC052381197"
+    },
+    {
+      "serial": 1556,
+      "name": "റിഷാദ്",
+      "guardian": "റഹീം",
+      "house_no": "047/1333",
+      "house_name": "ഗാന്ധി നഗർ 121",
+      "gender": "M",
+      "age": 22,
+      "id": "SEC052381973"
+    },
+    {
+      "serial": 1557,
+      "name": "ഷെറിൻ",
+      "guardian": "സ്റ്റാൻലി",
+      "house_no": "047/1333",
+      "house_name": "യാഹ്വി കോട്ടേജ്",
+      "gender": "F",
+      "age": 48,
+      "id": "SEC052381907"
     },
     {
       "serial": 449,

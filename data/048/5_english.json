@@ -2656,7 +2656,7 @@
     },
     {
       "serial": 266,
-      "name": "Shabin",
+      "name": "SHIFTED\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tShabin",
       "guardian": "Shahul Hameed",
       "house_no": "048/104",
       "house_name": "Shahul Mansil",
@@ -14533,6 +14533,26 @@
       "gender": "F",
       "age": 23,
       "id": "SEC046400363"
+    },
+    {
+      "serial": 1454,
+      "name": "SAMEER",
+      "guardian": "SHAMSUDDIN",
+      "house_no": "048/1",
+      "house_name": "KOTTIL PURAYIDOM",
+      "gender": "M",
+      "age": 45,
+      "id": "SEC052547408"
+    },
+    {
+      "serial": 266,
+      "name": "Shabin",
+      "guardian": "Shahul Hameed",
+      "house_no": "48/104",
+      "house_name": "Shahul Mansil",
+      "gender": "M",
+      "age": 33,
+      "id": "SEC037073415"
     }
   ]
 }
