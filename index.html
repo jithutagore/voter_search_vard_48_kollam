@@ -1,63 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voter Search</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Search - Kollam</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Loading Screen -->
-  <div id="loading">
-    <div class="spinner"></div>
-    <div class="loading-text">Loading...</div>
-  </div>
-
-  <header>
-    <h1>Voter Search</h1>
-  </header>
-
-  <main>
-    <div class="controls">
-      <select id="language">
-        <option value="english">English</option>
-        <option value="malayalam">മലയാളം</option>
-      </select>
-
-      <select id="ward">
-        <option value="all">All Wards</option>
-      </select>
-
-      <div class="search-box">
-        <input type="text" id="search" placeholder="Search by name, house, ID...">
-        <button id="searchBtn">Search</button>
-      </div>
+    <!-- Loading Screen -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Loading voter data...</p>
+        </div>
     </div>
 
-    <div id="error" class="error"></div>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Voter Search System</h1>
+            <p class="subtitle">Kollam - PORT & KAIKULANGARA Wards</p>
+        </header>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Serial</th>
-            <th>Ward</th>
-            <th>PS No</th>
-            <th>Name</th>
-            <th>Guardian</th>
-            <th>House No</th>
-            <th>House Name</th>
-            <th>Gender</th>
-            <th>Age</th>
-            <th>ID</th>
-            <th>Polling Station</th>
-          </tr>
-        </thead>
-        <tbody id="results"></tbody>
-      </table>
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-controls">
+                <!-- Search Input -->
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search by name, house, guardian, or voter ID..."
+                        class="search-input"
+                    >
+                </div>
+
+                <!-- Ward Filter -->
+                <div class="filter-group">
+                    <label for="wardFilter">Ward:</label>
+                    <select id="wardFilter" class="filter-select">
+                        <option value="all">All Wards</option>
+                        <option value="048">048 - PORT</option>
+                        <option value="049">049 - KAIKULANGARA</option>
+                    </select>
+                </div>
+
+                <!-- Language Toggle -->
+                <div class="language-toggle">
+                    <label class="toggle-label">
+                        <span class="lang-text">English</span>
+                        <label class="switch">
+                            <input type="checkbox" id="languageToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="lang-text">Malayalam</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button id="searchBtn" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Search
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"></path>
+                    </svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div id="resultsCount" class="results-count"></div>
+
+        <!-- Results Section -->
+        <div id="results" class="results-container"></div>
     </div>
-  </main>
 
-  <script src="script.js"></script>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Voter Search System - Kollam</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
