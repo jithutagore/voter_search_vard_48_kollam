@@ -59,7 +59,7 @@ body {
 
 .search-controls {
     display: grid;
-    grid-template-columns: 1fr;  /* only one column now */
+    grid-template-columns: 1fr auto auto;  /* only one column now */
     gap: 16px;
     align-items: center;
 }
